@@ -1,0 +1,28 @@
+#Checks if a user is logged in yet, and if not it waits and loops until we can confirm there is a real user
+function wait_for_user()
+{
+    #Set our test to false
+    verifiedUser="false"
+
+    #Loop until user is found
+    while [ "$verifiedUser" = "false" ]; do
+        #Get currently logged in user
+        currentUser=$( echo "show State:/Users/ConsoleUser" | scutil | awk '/Name :/ { print $3 }' )
+        #Verify the current user is not root, loginwindow, or _mbsetupuser
+        if [ "$currentUser" = "root" ] \
+            || [ "$currentUser" = "loginwindow" ] \
+            || [ "$currentUser" = "_mbsetupuser" ] \
+            || [ -z "$currentUser" ] 
+        then
+        #If we aren't verified yet, wait 1 second and try again
+        sleep 1
+        else
+            #Logged in user found, but continue the loop until Dock and Finder processes are running
+            if pgrep -q "dock" && pgrep -q "Finder"; then
+                uid=$(id -u "$currentUser")
+                log_message "Verified User is logged in: $currentUser UID: $uid"
+                verifiedUser="true"
+            fi
+        fi
+    done
+}
