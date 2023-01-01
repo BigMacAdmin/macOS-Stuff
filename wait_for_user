@@ -22,8 +22,8 @@ function wait_for_user()
         else
             #Logged in user found, but continue the loop until Dock and Finder processes are running
             if pgrep -q "dock" && pgrep -q "Finder"; then
-                uid=$(id -u "$currentUser")
-                log_message "Verified User is logged in: $currentUser UID: $uid"
+                #You may wish to add a log message or annoucement here that serves your purposes
+                #echo "An end user session has been identified: $currentUser"
                 verifiedUser="true"
             fi
         fi
