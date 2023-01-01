@@ -3,6 +3,9 @@ function wait_for_user()
 {
     #Set our test to false
     verifiedUser="false"
+    
+    #Set our timer for how long between loops
+    sleepTimer=5
 
     #Loop until user is found
     while [ "$verifiedUser" = "false" ]; do
@@ -14,8 +17,8 @@ function wait_for_user()
             || [ "$currentUser" = "_mbsetupuser" ] \
             || [ -z "$currentUser" ] 
         then
-        #If we aren't verified yet, wait 1 second and try again
-        sleep 1
+        #If we aren't verified yet, wait $sleepTimer seconds and try again
+        sleep $sleepTimer
         else
             #Logged in user found, but continue the loop until Dock and Finder processes are running
             if pgrep -q "dock" && pgrep -q "Finder"; then
