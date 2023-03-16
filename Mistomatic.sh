@@ -53,7 +53,7 @@ majorOS="$lowestOS"
 # Keep looping until we break or exit
 while true ; do
     # Get the latest build number in a variable. We do this by telling Mist to output a plist, then grabbing the build value using PlistBuddy, then delete that plist
-    latestBuild=$("$mistPath" list installer --latest $majorOS -e $tmpMistPlist > /dev/null 2>&1 && $pBuddy -c "Print :Array:build" $tmpMistPlist 2>/dev/null && rm "$tmpMistPlist")
+    latestBuild=$("$mistPath" list installer --latest $majorOS -e $tmpMistPlist > /dev/null 2>&1 && $pBuddy -c "Print :0:build" $tmpMistPlist 2>/dev/null && rm "$tmpMistPlist")
     # Big Sur was build 20XXXX. If we're getting a build lower than that, our loop needs to end. See the sanity check below for details. Also exit if $latestBuild is unset.
     if [ ${latestBuild:0:2} -lt '20' ] || [ -z "$latestBuild" ]; then
         log_message "End major versions"
@@ -66,7 +66,7 @@ while true ; do
         log_message "No new dmg to download"
     else
         log_message "New macOS $majorOS installer version found $latestBuild"
-        log_message "Deleting old versions"
+        log_message "Deleting old versions and initiating download..."
         # This finds any dmg with the same major OS version and deletes it
         find "$mistStore" -name "*-${latestBuild:0:2}*.dmg" -exec rm -rf {} \; 
         if "$mistPath" download installer "$latestBuild" image -o "$mistStore/DMGs" > /dev/null 2>&1; then
@@ -92,7 +92,7 @@ majorOS="$lowestOS"
 
 while true ; do
     # Get the latest build number in a variable. We do this by telling Mist to output a plist, then grabbing the build value using PlistBuddy
-    latestBuild=$("$mistPath" list firmware --latest $majorOS -e $tmpMistPlist > /dev/null 2>&1 && $pBuddy -c "Print :Array:build" $tmpMistPlist 2>/dev/null && rm "$tmpMistPlist" )
+    latestBuild=$("$mistPath" list firmware --latest $majorOS -e $tmpMistPlist > /dev/null 2>&1 && $pBuddy -c "Print :0:build" $tmpMistPlist 2>/dev/null && rm "$tmpMistPlist" )
     # Big Sur was build 20XXXX. If we're getting a build lower than that, our loop needs to end. See the sanity check below for details. Also exit if $latestBuild is unset.
     if  [ -z "$latestBuild" ] || [ ${latestBuild:0:2} -lt '20' ]; then
         log_message "End major versions"
@@ -105,7 +105,7 @@ while true ; do
         log_message "No new ipsw to download"
     else
         log_message "New macOS $majorOS firmware version found $latestBuild"
-        log_message "Deleting old versions"
+        log_message "Deleting old versions and initiating download..."
         # This finds any ipsw with the same major OS version and deletes it
         find "$mistStore" -name "*-${latestBuild:0:2}*.ipsw" -exec rm -rf {} \; 
         if "$mistPath" download firmware "$latestBuild" -o "$mistStore/IPSWs" > /dev/null 2>&1; then
