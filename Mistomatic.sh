@@ -14,7 +14,7 @@
 lowestOS='11'
 
 # This is the directory path that we are keeping our installers. We'll make sub-directories for DMGs and IPSWs
-mistStore='/Users/Shared/Mist/'
+mistStore='/Users/Shared/Mist'
 
 #############
 #   Tools   #
