@@ -1,6 +1,9 @@
 #!/bin/zsh
 #set -x
 
+# Installer History v1.0 2023-09-26
+# Trevor Sysock aka BigMacAdmin
+
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), 
 # to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
 # and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -11,9 +14,6 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
 # IN THE SOFTWARE.
-
-# Trevor Sysock aka BigMacAdmin
-# v1.0 - 2023-09-26
 
 # Usage:
 # ./installerHistory.sh [ "App Name" ]
@@ -76,7 +76,7 @@ until ! $pBuddy -c "Print :0:_items:$index:_name" "$tempPlistFile"  > /dev/null 
 
     # Get the date of install for the current item
     itemDate=$($pBuddy -c "Print :0:_items:$index:install_date" "$tempPlistFile")
-    
+
     # Get the version info for the current item. Since this doesn't exist for all entries, pipe errors to dev/null.
     # If the version info doesn't exist for this item, this variable will be empty.
     itemVersion=$($pBuddy -c "Print :0:_items:$index:install_version" "$tempPlistFile" 2> /dev/null)
