@@ -3,6 +3,13 @@
 
 # Written by Trevor Sysock aka BigMacAdmin
 
+# This script makes a copy of a mobileconfig file, and swaps out the UUIDs making it a unique profile.
+# Use this to create copies of your profiles before making minor edits and sending up to your MDM.
+# Use this to avoid uploading two profiles with the same UUIDs to your MDM server
+
+# Usage: ./regenerateProfileUUID.sh /path/to/profile-to-edit.mobileconfig
+# Only mobileconfig files are supported, and only one at a time.
+
 # Set argument 1 as our file to edit
 mobileConfigFile="$1"
 # Generate a new file name. We want this new file to be in the same directory as the existing file, and we will generate a unique file name by using unix epoc time
