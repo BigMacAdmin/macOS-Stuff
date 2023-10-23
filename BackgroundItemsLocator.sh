@@ -1,5 +1,5 @@
 #!/bin/zsh
-set -x
+#set -x
 
 # By default zsh exits the script if a wildcard search fails. Turn that off.
 unsetopt nomatch
