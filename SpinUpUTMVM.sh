@@ -80,14 +80,22 @@ function print_usage(){
 function delete_all_disposable_vms(){
     # Create an empty array
     disposableUUIDs=()
+    confirmationNames=()
 
     # Iterate through the "utmctl list" command and get an array containing all existing uuids
     while IFS=  read -r; do
-        #$REPLY is our relative file path, this is part of the `read` command
-        disposableUUIDs+="${REPLY}"
-    done < <($utmCTL list | grep "${disposablePrefix}_" | awk '{print $1}')
+        #$REPLY is our GUID and Name, this is part of the `read` command
+        disposableUUIDs+=$(echo "${REPLY}" | awk '{print $1}')
+        confirmationNames+="${REPLY}"
+    done < <($utmCTL list | grep "${disposablePrefix}_")
 
     fullList=$($utmCTL list)
+
+    if [ -z "$confirmationNames[1]" ]; then
+        echo "There are no disposable VMs with prefix: ${disposablePrefix}_"
+        exit 0
+    fi
+    confirm_deletions
 
     for UUID in ${disposableUUIDs[@]}; do
         deletingVMName=$(echo "$fullList" | grep "$UUID" | awk '{print $NF}')
@@ -153,6 +161,22 @@ function start_vm(){
 
 }
 
+function confirm_deletions(){
+    echo "The following VMs will be deleted: "
+    for name in $confirmationNames; do
+        echo "$name"
+    done
+    echo -n "Do you want to proceed with deletion? (Yes or No):    "
+    read "REPLY"
+    if [[ $REPLY =~ ^[Yy][Ee][Ss]$ ]] || [[ $REPLY =~ ^[Yy] ]]; then
+        echo "User Confirmed. Proceeding with deletion."
+    else
+        echo "Cancelled. To confirm, type \"y\" or \"yes\""
+        exit 5
+    fi
+
+}
+
 ##########################
 #   Script Starts Here   #
 ##########################
@@ -164,7 +188,7 @@ fi
 
 #\ Arguments
 if [ -z "${1}" ]; then
-    echo "No arguments given. Assuming to clone and start a macOS VM of the same major version running on the host."
+    echo "Default options will be used."
 fi
 
 while [ ! -z "${1}" ]; do
@@ -184,15 +208,7 @@ while [ ! -z "${1}" ]; do
             noStart=true; shift
             ;;
         -d|--delete)                            #\ Cleanup mode. All VMs with "DISPOSABLE" names will be deleted
-            echo -n "Are you sure? (Yes or No):    "
-                read "REPLY"
-                if [[ $REPLY =~ ^[Yy][Ee][Ss]$ ]] || [[ $REPLY =~ ^[Yy] ]]; then
-                    echo "CONFIRMED"
-                    delete_all_disposable_vms
-                else
-                    echo "Cancelled. To confirm, type \"y\" or \"yes\""
-                    exit 5
-                fi
+                delete_all_disposable_vms
             ;;
         -h|--help)                              #\ Print this help info
             print_usage 0
