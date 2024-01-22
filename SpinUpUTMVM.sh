@@ -2,7 +2,7 @@
 #set -x
 
 #\ SpinUpUTMVM.sh
-#\ v.1.0
+#\ v.1.1
 #\ By Trevor Sysock (aka BigMacAdmin)
 #\
 
@@ -41,6 +41,10 @@
 # For macOS, if no version is specified then the currently running host operating system is assumed
 # For Windows, set this variable to the desired default value when no --version is provided as an argument
 defaultWindowsVersion=11
+
+defaultUbuntuServerVersion=22
+
+defaultUbuntuVersion=22
 
 ####################################
 # DO NOT EDIT BELOW FOR NORMAL USE #
@@ -114,8 +118,13 @@ function delete_all_disposable_vms(){
 }
 
 function open_utm(){
-    open "$utmApp"
-    sleep 2
+    if ps -A | grep -v grep | grep -iq 'utm.app' ; then
+        sleep 2
+    else
+        open "$utmApp"
+        echo "Opening UTM.app"
+        sleep 15
+    fi
 }
 
 function copy_vm(){
@@ -193,27 +202,33 @@ fi
 
 while [ ! -z "${1}" ]; do
     case "$1" in
-        -w|--windows|--Windows|--WINDOWS)       #\ Spin up a Windows VM
-            operatingSystem="Windows" ; shift
-            ;;
-        -m|--macOS|--macos|--MACOS)             #\ Spin up a macOS VM - This option is default if no OS is specified
+        -m|--macOS|--macos|--MACOS)                         #\ Spin up a macOS VM - This option is default if no OS is specified
             operatingSystem="macOS" ; shift
             ;;
-        -v|--version)                           #\ What version of the specified OS to spin up. (i.e. 11, 12, 13, 14)
-                                                #\ If not supplied, the host version of macOS is used or the version of Windows
-                                                #\ specified in the script configuration section.
+        -w|--windows|--Windows|--WINDOWS)                   #\ Spin up a Windows VM
+            operatingSystem="Windows" ; shift
+            ;;
+        -us|--UbuntuServer|--ubuntuserver|--UBUNTUSERVER)   #\ Spin up an Ubuntu Server VM
+            operatingSystem="UbuntuServer" ; shift
+            ;;
+        -u|--ubuntu|--Ubuntu|--UBUNTU)                      #\ Spin up a Ubuntu VM
+            operatingSystem="Ubuntu" ; shift
+            ;;
+        -v|--version)                                       #\ What version of the specified OS to spin up. (i.e. 11, 12, 13, 14)
+                                                            #\ If not supplied, the host version of macOS is used or the version of Windows
+                                                            #\ specified in the script configuration section.
             version="${2}"; shift; shift
             ;;
-        -n|-ns|--nostart)                       #\ Do not start the VM after cloning
+        -n|-ns|--nostart)                                   #\ Do not start the VM after cloning
             noStart=true; shift
             ;;
-        -d|--delete)                            #\ Cleanup mode. All VMs with "DISPOSABLE" names will be deleted
+        -d|--delete)                                        #\ Cleanup mode. All VMs with "DISPOSABLE" names will be deleted
                 delete_all_disposable_vms
             ;;
-        -h|--help)                              #\ Print this help info
+        -h|--help)                                          #\ Print this help info
             print_usage 0
             ;;
-        *)                                      #\ Any unknown arguments cause the script to exit.
+        *)                                                  #\ Any unknown arguments cause the script to exit.
             echo "Print usage"
             exit 9
             ;;
@@ -225,11 +240,36 @@ if [ -z "$operatingSystem" ]; then
     operatingSystem="macOS"
 fi
 
-# If no version is set, use the currently running version of macOS
-if [ -z "$version" ] && [[ "$operatingSystem" == "macOS" ]]; then
-    version=$(sw_vers | grep "ProductVersion" | awk '{print $NF}' | cut -d '.' -f 1)
-elif [ -z "$version" ] && [[ "$operatingSystem" == "Windows" ]]; then
-    version="$defaultWindowsVersion"
+# If no version is set, use determine the appropriate default
+#if [ -z "$version" ] && [[ "$operatingSystem" == "macOS" ]]; then
+#    version=$(sw_vers | grep "ProductVersion" | awk '{print $NF}' | cut -d '.' -f 1)
+#elif [ -z "$version" ] && [[ "$operatingSystem" == "Windows" ]]; then
+#    version="$defaultWindowsVersion"
+#elif [ -z "$version" ] && [[ "$operatingSystem" == "Ubuntu" ]]; then
+#    version="$defaultUbuntuVersion"
+#elif [ -z "$version" ] && [[ "$operatingSystem" == "UbuntuServer" ]]; then
+#    version="$defaultUbuntuServerVersion"
+#fi
+
+if [ -z "$version" ]; then
+    case $operatingSystem in
+        macOS)
+            version=$(sw_vers | grep "ProductVersion" | awk '{print $NF}' | cut -d '.' -f 1)
+            ;;
+        Windows)
+            version="$defaultWindowsVersion"
+            ;;
+        Ubuntu)
+            version="$defaultUbuntuVersion"
+            ;;
+        UbuntuServer)
+            version="$defaultUbuntuServerVersion"
+            ;;
+        *)
+            echo "Unknown operating system - Exiting"
+            exit 6
+            ;;
+    esac
 fi
 
 # If "No Start" was not set, put the variable to false
@@ -237,6 +277,7 @@ if [ -z $noStart ]; then
     noStart=false
 fi
 
+open_utm
 
 get_template_vm_UUID
 
@@ -244,8 +285,7 @@ copy_vm
 
 start_vm
 
-
 echo "Script complete"
 
 #\
-#\ For more detailed information on how to use this tool, please see my blog post: https://bigmacadmin.com/BLOGPOSTHERE
+#\ For more detailed information on how to use this tool, please see my blog post: https://bigmacadmin.wordpress.com/2024/01/09/spinupvm-sh-a-convenience-script-to-quickly-spin-up-a-macos-test-vm-in-utm/
