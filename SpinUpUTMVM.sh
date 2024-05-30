@@ -229,7 +229,7 @@ while [ ! -z "${1}" ]; do
             print_usage 0
             ;;
         *)                                                  #\ Any unknown arguments cause the script to exit.
-            echo "Print usage"
+            print_usage
             exit 9
             ;;
     esac
