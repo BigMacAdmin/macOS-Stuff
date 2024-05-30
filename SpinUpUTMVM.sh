@@ -2,7 +2,7 @@
 #set -x
 
 #\ SpinUpUTMVM.sh
-#\ v.1.1
+#\ v.1.2
 #\ By Trevor Sysock (aka BigMacAdmin)
 #\
 
