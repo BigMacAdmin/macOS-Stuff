@@ -43,3 +43,9 @@ payloadIdentifierSuffix=$(echo $payloadIdentifierFull | awk -F '.' '{print $NF}'
 # Set the new PayloadIdentifier and PayloadUUID values. Use zsh string substitution tricks to make this easy
 $pBuddy -c "Set PayloadIdentifier ${payloadIdentifierFull/${payloadIdentifierSuffix}/$(uuidgen)}" "$newMobileConfigFile"
 $pBuddy -c "Set PayloadUUID $(uuidgen)" "$newMobileConfigFile"
+
+count=0
+while $pBuddy -c "Print PayloadContent:${count}" "$newMobileConfigFile" > /dev/null 2>&1; do
+    $pBuddy -c "Set PayloadContent:${count}:PayloadUUID $(uuidgen)" "$newMobileConfigFile"
+    count=$(( count + 1 ))
+done
