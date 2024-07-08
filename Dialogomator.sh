@@ -171,6 +171,7 @@ sleep 1
 
 # Run the installomator label and report pass or fail
 if /usr/local/Installomator/Installomator.sh "${label}" DIALOG_CMD_FILE="/var/tmp/dialog.log" ${currentArgumentArray[@]}; then
+    /usr/local/Installomator/Installomator.sh "${label}" DEBUG=0
     echo "progress: 100" >> /var/tmp/dialog.log
     sleep .1
     echo "progresstext: Complete" >> /var/tmp/dialog.log
