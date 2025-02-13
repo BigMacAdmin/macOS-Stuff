@@ -10,20 +10,39 @@
 # Usage: ./regenerateProfileUUID.sh /path/to/profile-to-edit.mobileconfig
 # Only mobileconfig files are supported, and only one at a time.
 
+# Check the number of arguments
+if [ $# -eq 0 ]; then
+    echo "ERROR: No arguments provided. Usage: ./regenerateProfileUUID.sh /path/to/profile-to-edit.mobileconfig"
+    exit 1
+fi
+
 # Set argument 1 as our file to edit
 mobileConfigFile="$1"
+shift
+
+# Process the script arguments using a case statement
+case "$1" in
+    -h|--help)
+        echo "Usage: ./regenerateProfileUUID.sh /path/to/profile-to-edit.mobileconfig"
+        exit 0
+        ;;
+    -o| --output)
+        newMobileConfigFile="$2"
+        shift
+        ;;
+esac
+
+# Shift the arguments to remove the processed ones
+shift
+
 # Generate a new file name. We want this new file to be in the same directory as the existing file, and we will generate a unique file name by using unix epoc time
 # /path/to/test1.mobileconfig will become /path/to/test1_epoctime.mobileconfig
-newMobileConfigFile="$(dirname $mobileConfigFile)/${mobileConfigFile:t:r}_$(date +%s).mobileconfig"
+if [ -z "$newMobileConfigFile" ]; then
+    newMobileConfigFile="$(dirname $mobileConfigFile)/${mobileConfigFile:t:r}_$(date +%s).mobileconfig"
+fi
 
 # Plist Buddy path
 pBuddy="/usr/libexec/PlistBuddy"
-
-# Verify we have 1 argument
-if [ $# != 1 ]; then
-    echo "ERROR: Must provide the path to the mobileconfig to edit. Only one file supported."
-    exit 1
-fi
 
 # Check the file type, we're limiting only to mobileconfig files
 if [ "${mobileConfigFile:e}" != "mobileconfig" ]; then
